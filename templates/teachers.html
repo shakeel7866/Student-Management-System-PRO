@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ t('teachers') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">🧑‍🏫 {{ t('teachers') }}</h4>
+<p class="text-muted small">New teacher accounts are created from the <a href="{{ url_for('admin_panel') }}">Admin Panel</a> (role = Teacher). Use this page to assign subjects and set salary.</p>
+
+<div class="scroll-panel">
+  <div class="scroll-arrows">
+    <button class="scroll-arrow-btn" onclick="scrollPanel('teachTable','up')" title="{{ t('scroll_up') }}">▲</button>
+    <button class="scroll-arrow-btn" onclick="scrollPanel('teachTable','down')" title="{{ t('scroll_down') }}">▼</button>
+  </div>
+  <div class="scroll-body" id="teachTable">
+    <table class="pro-table">
+      <thead><tr>
+        <th>{{ t('full_name') }}</th><th>{{ t('username') }}</th><th>{{ t('phone') }}</th>
+        <th>{{ t('salary') }}</th><th>{{ t('assigned_subjects') }}</th><th>{{ t('actions') }}</th>
+      </tr></thead>
+      <tbody>
+      {% for tc in teachers %}
+        <tr>
+          <td>{{ tc['name'] }}</td>
+          <td>{{ tc['username'] or '-' }}</td>
+          <td>{{ tc['phone'] or '-' }}</td>
+          <td>PKR {{ "%.0f"|format(tc['salary']) }}</td>
+          <td>
+            {% set ids = teacher_subjects.get(tc['id'], []) %}
+            {% for s in subjects %}{% if s['id'] in ids %}<span class="badge text-bg-secondary me-1">{{ s['name'] }}</span>{% endif %}{% endfor %}
+            {% if not ids %}<span class="text-muted">—</span>{% endif %}
+          </td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#teacherModal{{ tc['id'] }}">✏️ {{ t('edit') }}</button>
+          </td>
+        </tr>
+        <div class="modal fade" id="teacherModal{{ tc['id'] }}" tabindex="-1">
+          <div class="modal-dialog">
+            <form method="post" class="modal-content">
+              <input type="hidden" name="teacher_id" value="{{ tc['id'] }}">
+              <div class="modal-header"><h6 class="modal-title">🧑‍🏫 {{ tc['name'] }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body">
+                <label class="form-label small">{{ t('full_name') }}</label>
+                <input class="form-control form-control-sm mb-2" name="name" value="{{ tc['name'] }}">
+                <label class="form-label small">{{ t('phone') }}</label>
+                <input class="form-control form-control-sm mb-2" name="phone" value="{{ tc['phone'] or '' }}">
+                <label class="form-label small">{{ t('salary') }} (PKR)</label>
+                <input class="form-control form-control-sm mb-2" type="number" name="salary" value="{{ tc['salary'] }}">
+                <label class="form-label small">{{ t('assigned_subjects') }}</label>
+                {% set ids = teacher_subjects.get(tc['id'], []) %}
+                <div class="row">
+                {% for s in subjects %}
+                  <div class="col-6">
+                    <div class="form-check">
+                      <input class="form-check-input" type="checkbox" name="subject_ids" value="{{ s['id'] }}"
+                             id="sub{{ tc['id'] }}_{{ s['id'] }}" {{ 'checked' if s['id'] in ids }}>
+                      <label class="form-check-label small" for="sub{{ tc['id'] }}_{{ s['id'] }}">{{ s['name'] }}</label>
+                    </div>
+                  </div>
+                {% endfor %}
+                </div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{{ t('cancel') }}</button>
+                <button type="submit" class="btn btn-primary btn-sm">💾 {{ t('save') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <tr><td colspan="6" class="text-center text-muted py-4">{{ t('no_data') }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

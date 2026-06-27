@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}{{ t('fees') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">💰 {{ t('fees') }}</h4>
+
+<div class="row g-3 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="stat-card"><div class="stat-icon">💳</div><div class="stat-value">PKR {{ "%.0f"|format(totals.admission) }}</div><div class="stat-label">{{ t('admission_fee') }}</div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card"><div class="stat-icon">📆</div><div class="stat-value">PKR {{ "%.0f"|format(totals.monthly) }}</div><div class="stat-label">{{ t('monthly_fee') }}</div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-value">PKR {{ "%.0f"|format(totals.paid) }}</div><div class="stat-label">{{ t('paid') }}</div></div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card"><div class="stat-icon">⚠️</div><div class="stat-value">PKR {{ "%.0f"|format(totals.pending) }}</div><div class="stat-label">{{ t('pending') }}</div></div>
+  </div>
+</div>
+
+<div class="scroll-panel">
+  <div class="scroll-arrows">
+    <button class="scroll-arrow-btn" onclick="scrollPanel('feesTable','up')" title="{{ t('scroll_up') }}">▲</button>
+    <button class="scroll-arrow-btn" onclick="scrollPanel('feesTable','down')" title="{{ t('scroll_down') }}">▼</button>
+  </div>
+  <div class="scroll-body" id="feesTable">
+    <table class="pro-table">
+      <thead><tr>
+        <th>{{ t('roll_no') }}</th><th>{{ t('name') }}</th><th>{{ t('admission_fee') }}</th>
+        <th>{{ t('monthly_fee') }}</th><th>{{ t('paid') }}</th><th>{{ t('pending') }}</th>
+        <th>{{ t('status') }}</th><th>{{ t('actions') }}</th>
+      </tr></thead>
+      <tbody>
+      {% for s in students %}
+        <tr>
+          <td>{{ s['roll_no'] }}</td><td>{{ s['name'] }}</td>
+          <td>{{ "%.0f"|format(s['admission_fee']) }}</td>
+          <td>{{ "%.0f"|format(s['monthly_fee']) }}</td>
+          <td>{{ "%.0f"|format(s['fee_paid']) }}</td>
+          <td>{{ "%.0f"|format(s['fee_pending']) }}</td>
+          <td><span class="badge text-bg-{{ 'success' if s['fee_status']=='paid' else ('warning' if s['fee_status']=='partial' else 'danger') }}">{{ s['fee_status']|title }}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#feeModal{{ s['id'] }}">✏️ {{ t('update') }}</button>
+          </td>
+        </tr>
+        <div class="modal fade" id="feeModal{{ s['id'] }}" tabindex="-1">
+          <div class="modal-dialog">
+            <form method="post" class="modal-content">
+              <input type="hidden" name="student_id" value="{{ s['id'] }}">
+              <div class="modal-header"><h6 class="modal-title">💰 {{ s['name'] }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+              <div class="modal-body row g-2">
+                <div class="col-6"><label class="form-label small">{{ t('admission_fee') }}</label>
+                  <input class="form-control form-control-sm" type="number" name="admission_fee" value="{{ s['admission_fee'] }}"></div>
+                <div class="col-6"><label class="form-label small">{{ t('monthly_fee') }}</label>
+                  <input class="form-control form-control-sm" type="number" name="monthly_fee" value="{{ s['monthly_fee'] }}"></div>
+                <div class="col-6"><label class="form-label small">{{ t('paid') }}</label>
+                  <input class="form-control form-control-sm" type="number" name="fee_paid" value="{{ s['fee_paid'] }}"></div>
+                <div class="col-6"><label class="form-label small">{{ t('pending') }}</label>
+                  <input class="form-control form-control-sm" type="number" name="fee_pending" value="{{ s['fee_pending'] }}"></div>
+                <div class="col-12"><label class="form-label small">{{ t('status') }}</label>
+                  <select class="form-select form-select-sm" name="fee_status">
+                    <option value="paid" {{ 'selected' if s['fee_status']=='paid' }}>{{ t('paid') }}</option>
+                    <option value="partial" {{ 'selected' if s['fee_status']=='partial' }}>Partial</option>
+                    <option value="unpaid" {{ 'selected' if s['fee_status']=='unpaid' }}>{{ t('pending') }}</option>
+                  </select></div>
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{{ t('cancel') }}</button>
+                <button type="submit" class="btn btn-primary btn-sm">💾 {{ t('save') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <tr><td colspan="8" class="text-center text-muted py-4">{{ t('no_data') }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

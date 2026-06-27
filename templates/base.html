@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="{{ lang }}" dir="{{ 'rtl' if lang == 'ur' else 'ltr' }}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>{{ t('app_name') }}</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+</head>
+<body class="density-{{ density }} {{ 'rtl-mode' if lang == 'ur' else '' }}">
+
+{% if current_user %}
+<div class="d-flex app-shell">
+
+  <!-- Sidebar (desktop: fixed column, mobile: offcanvas) -->
+  <nav class="sidebar d-none d-lg-flex flex-column">
+    <div class="sidebar-brand">
+      <span class="brand-icon">🎓</span>
+      <span class="brand-text">{{ t('app_name') }}</span>
+    </div>
+    <div class="sidebar-nav">
+      {% include "_nav_links.html" %}
+    </div>
+  </nav>
+
+  <!-- Mobile offcanvas sidebar -->
+  <div class="offcanvas offcanvas-start text-bg-dark d-lg-none" tabindex="-1" id="mobileSidebar">
+    <div class="offcanvas-header">
+      <span class="brand-text">🎓 {{ t('app_name') }}</span>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+    </div>
+    <div class="offcanvas-body sidebar-nav">
+      {% include "_nav_links.html" %}
+    </div>
+  </div>
+
+  <div class="main-col flex-grow-1">
+    <!-- Topbar -->
+    <header class="topbar d-flex align-items-center justify-content-between">
+      <div class="d-flex align-items-center gap-2">
+        <button class="btn btn-sm btn-outline-light d-lg-none" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar">☰</button>
+        <span class="topbar-title">{{ self.title() if self.title is defined else '' }}</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 flex-wrap">
+        <div class="btn-group btn-group-sm" role="group" aria-label="density">
+          <a class="btn btn-outline-light {{ 'active' if density=='small' }}" href="{{ url_for('set_density', level='small') }}">{{ t('small') }}</a>
+          <a class="btn btn-outline-light {{ 'active' if density=='medium' }}" href="{{ url_for('set_density', level='medium') }}">{{ t('medium') }}</a>
+        </div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="lang">
+          <a class="btn btn-outline-light {{ 'active' if lang=='en' }}" href="{{ url_for('set_lang', code='en') }}">EN</a>
+          <a class="btn btn-outline-light {{ 'active' if lang=='ur' }}" href="{{ url_for('set_lang', code='ur') }}">اردو</a>
+        </div>
+        <span class="text-light small d-none d-sm-inline">👤 {{ current_user['full_name'] or current_user['username'] }}</span>
+        <a class="btn btn-sm btn-danger" href="{{ url_for('logout') }}">{{ t('logout') }}</a>
+      </div>
+    </header>
+
+    <main class="content-area">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{ 'danger' if category=='danger' else category }} alert-dismissible fade show m-3" role="alert">
+              {{ msg }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+{% else %}
+  {% block guest_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

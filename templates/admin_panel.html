@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% block title %}{{ t('admin_panel') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">⚙️ {{ t('admin_panel') }}</h4>
+
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card-pro">
+      <h6 class="mb-3">👤 Accounts</h6>
+      <div class="scroll-panel">
+        <div class="scroll-arrows">
+          <button class="scroll-arrow-btn" onclick="scrollPanel('usersTable','up')" title="{{ t('scroll_up') }}">▲</button>
+          <button class="scroll-arrow-btn" onclick="scrollPanel('usersTable','down')" title="{{ t('scroll_down') }}">▼</button>
+        </div>
+        <div class="scroll-body" id="usersTable" style="max-height:380px;">
+          <table class="pro-table">
+            <thead><tr><th>{{ t('username') }}</th><th>{{ t('full_name') }}</th><th>{{ t('role') }}</th>
+              <th>{{ t('display_size') }}</th><th>{{ t('actions') }}</th></tr></thead>
+            <tbody>
+            {% for u in users %}
+              <tr>
+                <td>{{ u['username'] }}</td>
+                <td>{{ u['full_name'] or '-' }}</td>
+                <td><span class="badge text-bg-secondary">{{ u['role']|title }}</span></td>
+                <td>{{ t(u['density']) }}</td>
+                <td>
+                  {% if u['id'] != current_user['id'] %}
+                  <form method="post" action="{{ url_for('admin_delete_user', uid=u['id']) }}" onsubmit="return confirm('Remove this account?');">
+                    <button class="btn btn-sm btn-outline-danger" type="submit">🗑️ {{ t('delete') }}</button>
+                  </form>
+                  {% else %}<span class="text-muted small">(you)</span>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card-pro">
+      <h6 class="mb-3">➕ {{ t('create_account') }}</h6>
+      {% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+      <form method="post" id="createAcctForm">
+        <label class="form-label small">{{ t('username') }} *</label>
+        <input class="form-control mb-2" name="username" required>
+
+        <label class="form-label small">{{ t('password') }} *</label>
+        <input class="form-control mb-2" type="password" name="password" required minlength="4">
+
+        <label class="form-label small">{{ t('full_name') }}</label>
+        <input class="form-control mb-2" name="full_name">
+
+        <label class="form-label small">{{ t('role') }} *</label>
+        <select class="form-select mb-2" name="role" id="roleSelect" required onchange="toggleLinkField()">
+          <option value="admin">Admin</option>
+          <option value="teacher">Teacher</option>
+          <option value="student">Student</option>
+          <option value="parent">Parent</option>
+        </select>
+
+        <div id="linkFieldWrap" class="mb-2" style="display:none;">
+          <label class="form-label small">Link to Student (Roll No.)</label>
+          <select class="form-select" name="link_roll">
+            <option value="">— none —</option>
+            {% for s in students %}
+              <option value="{{ s['roll_no'] }}">{{ s['roll_no'] }} — {{ s['name'] }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <label class="form-label small">{{ t('display_size') }} (format)</label>
+        <div class="d-flex gap-3 mb-3">
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="density" value="small" id="densSmall">
+            <label class="form-check-label" for="densSmall">{{ t('small') }}</label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="density" value="medium" id="densMedium" checked>
+            <label class="form-check-label" for="densMedium">{{ t('medium') }}</label>
+          </div>
+        </div>
+
+        <div class="d-flex gap-2">
+          <button class="btn btn-primary" type="submit">✅ {{ t('create_account') }}</button>
+          <button class="btn btn-outline-warning" type="button" onclick="document.getElementById('createAcctForm').reset(); toggleLinkField();">🧹 {{ t('clear') }}</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleLinkField(){
+  const role = document.getElementById('roleSelect').value;
+  document.getElementById('linkFieldWrap').style.display = (role === 'student' || role === 'parent') ? 'block' : 'none';
+}
+toggleLinkField();
+</script>
+{% endblock %}

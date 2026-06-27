@@ -1,0 +1,41 @@
+{% set role = current_user['role'] %}
+<a class="nav-link {{ 'active' if request.path == url_for('dashboard') }}" href="{{ url_for('dashboard') }}">🏠 {{ t('dashboard') }}</a>
+
+{% if role in ['admin','teacher'] %}
+  <div class="nav-section">{{ t('students') }}</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('students_list') }}" href="{{ url_for('students_list') }}">👥 {{ t('students') }}</a>
+{% endif %}
+
+{% if role == 'admin' %}
+  <a class="nav-link {{ 'active' if request.path == url_for('subjects_page') }}" href="{{ url_for('subjects_page') }}">📚 {{ t('subjects') }}</a>
+{% endif %}
+
+{% if role in ['admin','teacher'] %}
+  <div class="nav-section">Academics</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('attendance_page') }}" href="{{ url_for('attendance_page') }}">📅 {{ t('attendance') }}</a>
+  <a class="nav-link {{ 'active' if request.path == url_for('exams_page') }}" href="{{ url_for('exams_page') }}">📝 {{ t('exams_results') }}</a>
+{% endif %}
+
+{% if role == 'admin' %}
+  <div class="nav-section">Finance</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('fees_page') }}" href="{{ url_for('fees_page') }}">💰 {{ t('fees') }}</a>
+
+  <div class="nav-section">Staff</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('teachers_page') }}" href="{{ url_for('teachers_page') }}">🧑‍🏫 {{ t('teachers') }}</a>
+{% endif %}
+
+{% if role == 'parent' %}
+  <div class="nav-section">{{ t('parent_portal') }}</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('parent_portal') }}" href="{{ url_for('parent_portal') }}">👨‍👩‍👧 {{ t('parent_portal') }}</a>
+{% endif %}
+
+{% if role == 'admin' %}
+  <div class="nav-section">System</div>
+  <a class="nav-link {{ 'active' if request.path == url_for('admin_panel') }}" href="{{ url_for('admin_panel') }}">⚙️ {{ t('admin_panel') }}</a>
+{% endif %}
+
+{% if role in ['admin','teacher'] %}
+  <div class="nav-section">Reports</div>
+  <a class="nav-link" href="{{ url_for('export_excel') }}">📤 {{ t('export_excel') }}</a>
+  <a class="nav-link" href="{{ url_for('export_pdf_all') }}">🧾 {{ t('export_pdf') }}</a>
+{% endif %}

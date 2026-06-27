@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ t('exams_results') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">📝 {{ t('exams_results') }}</h4>
+
+<div class="scroll-panel mb-3">
+  <div class="scroll-arrows">
+    <button class="scroll-arrow-btn" onclick="scrollPanel('examsTable','up')" title="{{ t('scroll_up') }}">▲</button>
+    <button class="scroll-arrow-btn" onclick="scrollPanel('examsTable','down')" title="{{ t('scroll_down') }}">▼</button>
+  </div>
+  <div class="scroll-body" id="examsTable">
+    <table class="pro-table">
+      <thead><tr>
+        <th>#</th><th>{{ t('roll_no') }}</th><th>{{ t('name') }}</th>
+        {% for s in subjects %}<th>{{ s['name'] }}</th>{% endfor %}
+        <th>{{ t('avg') }}</th><th>{{ t('grade') }}</th><th>{{ t('actions') }}</th>
+      </tr></thead>
+      <tbody>
+      {% for r in rows %}
+        <tr>
+          <td>#{{ loop.index }}</td>
+          <td>{{ r.student['roll_no'] }}</td>
+          <td>{{ r.student['name'] }}</td>
+          {% for s in subjects %}<td>{{ '%.0f'|format(r.marks.get(s['id'], 0)) }}</td>{% endfor %}
+          <td>{{ r.avg }}</td>
+          <td><span class="badge badge-grade-{{ r.grade.replace('+','p') }}">{{ r.grade }}</span></td>
+          <td>
+            <button class="btn btn-sm btn-outline-primary" type="button"
+                    data-bs-toggle="modal" data-bs-target="#markModal{{ r.student['id'] }}">✏️ {{ t('update') }}</button>
+          </td>
+        </tr>
+
+        <!-- Update marks modal -->
+        <div class="modal fade" id="markModal{{ r.student['id'] }}" tabindex="-1">
+          <div class="modal-dialog">
+            <form method="post" class="modal-content">
+              <input type="hidden" name="student_id" value="{{ r.student['id'] }}">
+              <div class="modal-header">
+                <h6 class="modal-title">✏️ {{ t('update') }} — {{ r.student['name'] }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+              </div>
+              <div class="modal-body row g-2">
+                {% for s in subjects %}
+                  <div class="col-6">
+                    <label class="form-label small">{{ s['name'] }}</label>
+                    <input class="form-control form-control-sm" type="number" min="0" max="100"
+                           name="marks_{{ s['id'] }}" value="{{ r.marks.get(s['id'], 0) }}">
+                  </div>
+                {% endfor %}
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">{{ t('cancel') }}</button>
+                <button type="submit" class="btn btn-primary btn-sm">💾 {{ t('save') }}</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      {% else %}
+        <tr><td colspan="{{ subjects|length + 6 }}" class="text-center text-muted py-4">{{ t('no_data') }}</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

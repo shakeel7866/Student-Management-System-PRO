@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% block title %}{{ t('add_new_student') if not student else t('edit') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">👨‍🎓 {{ t('add_new_student') if not student else (t('edit') + ' — ' + student['name']) }}</h4>
+
+{% if error %}<div class="alert alert-danger">{{ error }}</div>{% endif %}
+
+<form method="post" id="studentForm" class="card-pro">
+  <div class="row g-3">
+    <div class="col-md-4">
+      <label class="form-label small">{{ t('roll_no') }} *</label>
+      <input class="form-control" name="roll_no" required
+             value="{{ student['roll_no'] if student else '' }}"
+             {{ 'readonly' if student }}>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small">{{ t('name') }} *</label>
+      <input class="form-control" name="name" required value="{{ student['name'] if student else '' }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small">{{ t('class_name') }}</label>
+      <input class="form-control" name="class_name" value="{{ student['class_name'] if student else '' }}">
+    </div>
+
+    <div class="col-md-4">
+      <label class="form-label small">{{ t('father') }}</label>
+      <input class="form-control" name="father" value="{{ student['father'] if student else '' }}">
+    </div>
+    <div class="col-md-4">
+      <label class="form-label small">{{ t('email') }}</label>
+      <input class="form-control" type="email" name="email" value="{{ student['email'] if student else '' }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small">{{ t('age') }}</label>
+      <input class="form-control" type="number" name="age" min="0" value="{{ student['age'] if student else '' }}">
+    </div>
+    <div class="col-md-2">
+      <label class="form-label small">{{ t('attendance') }} %</label>
+      <input class="form-control" type="number" step="0.1" min="0" max="100" name="attendance"
+             value="{{ student['attendance'] if student else 100 }}">
+    </div>
+  </div>
+
+  <hr>
+  <h6 class="mb-2">📝 {{ t('exams_results') }} — Marks (0–100)</h6>
+  <div class="row g-3">
+    {% for s in subjects %}
+      <div class="col-6 col-md-3">
+        <label class="form-label small">{{ s['name'] }}</label>
+        <input class="form-control form-control-sm" type="number" min="0" max="100"
+               name="marks_{{ s['id'] }}" value="{{ marks_map.get(s['id'], 0) }}">
+      </div>
+    {% else %}
+      <div class="col-12 text-muted small">No subjects yet — add some on the Subjects page first.</div>
+    {% endfor %}
+  </div>
+
+  <hr>
+  <h6 class="mb-2">💰 {{ t('fees') }}</h6>
+  <div class="row g-3">
+    <div class="col-6 col-md-3">
+      <label class="form-label small">{{ t('admission_fee') }}</label>
+      <input class="form-control" type="number" name="admission_fee" value="{{ student['admission_fee'] if student else 5000 }}">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small">{{ t('monthly_fee') }}</label>
+      <input class="form-control" type="number" name="monthly_fee" value="{{ student['monthly_fee'] if student else 2000 }}">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small">{{ t('paid') }}</label>
+      <input class="form-control" type="number" name="fee_paid" value="{{ student['fee_paid'] if student else 0 }}">
+    </div>
+    <div class="col-6 col-md-3">
+      <label class="form-label small">{{ t('pending') }}</label>
+      <input class="form-control" type="number" name="fee_pending" value="{{ student['fee_pending'] if student else 0 }}">
+    </div>
+    <div class="col-12">
+      <label class="form-label small">{{ t('status') }}</label>
+      {% set cur_status = student['fee_status'] if student else 'unpaid' %}
+      <select class="form-select form-select-sm" name="fee_status" style="max-width:200px;">
+        <option value="paid" {{ 'selected' if cur_status=='paid' }}>{{ t('paid') }}</option>
+        <option value="partial" {{ 'selected' if cur_status=='partial' }}>Partial</option>
+        <option value="unpaid" {{ 'selected' if cur_status=='unpaid' }}>{{ t('pending') }}</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="d-flex gap-2 flex-wrap mt-4">
+    <button type="submit" class="btn btn-primary" name="action" value="save">💾 {{ t('save') }}</button>
+    {% if not student %}
+      <button type="submit" class="btn btn-outline-primary" name="action" value="save_new">💾 {{ t('save') }} + {{ t('add') }} {{ t('add_new_student') }}</button>
+    {% endif %}
+    <button type="button" class="btn btn-outline-warning" onclick="clearStudentForm()">🧹 {{ t('clear') }}</button>
+    {% if not student %}
+      <button type="submit" class="btn btn-outline-secondary" name="action" value="skip">⏭ {{ t('skip') }}</button>
+    {% endif %}
+    <a href="{{ url_for('students_list') }}" class="btn btn-outline-secondary">❌ {{ t('cancel') }}</a>
+  </div>
+</form>
+
+<script>
+function clearStudentForm(){
+  if(!confirm("Clear everything you've typed in this form?")) return;
+  const form = document.getElementById('studentForm');
+  form.querySelectorAll('input[type=text], input[type=email], input[type=number]').forEach(i=>{
+    if(i.name === 'roll_no' && i.readOnly) return; // keep roll no when editing
+    if(i.name.startsWith('marks_')) { i.value = 0; return; }
+    if(i.name === 'attendance') { i.value = 100; return; }
+    if(i.name === 'admission_fee') { i.value = 5000; return; }
+    if(i.name === 'monthly_fee') { i.value = 2000; return; }
+    if(i.name === 'fee_paid' || i.name === 'fee_pending') { i.value = 0; return; }
+    i.value = '';
+  });
+}
+// Enter key submits the form (Save) unless focus is in a select/button
+document.getElementById('studentForm').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' && e.target.tagName !== 'TEXTAREA'){
+    e.preventDefault();
+    this.requestSubmit();
+  }
+});
+</script>
+{% endblock %}

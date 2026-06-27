@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ t('subjects') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">📚 {{ t('subjects') }}</h4>
+
+<div class="row g-3">
+  <div class="col-md-7">
+    <div class="card-pro">
+      <table class="pro-table">
+        <thead><tr><th>#</th><th>{{ t('name') }}</th><th>{{ t('actions') }}</th></tr></thead>
+        <tbody>
+        {% for s in subjects %}
+          <tr>
+            <td>{{ loop.index }}</td>
+            <td>{{ s['name'] }}</td>
+            <td class="d-flex gap-1">
+              <form method="post" class="d-flex gap-1">
+                <input type="hidden" name="action" value="rename">
+                <input type="hidden" name="subject_id" value="{{ s['id'] }}">
+                <input class="form-control form-control-sm" name="new_name" value="{{ s['name'] }}" style="width:140px;">
+                <button class="btn btn-sm btn-outline-primary" type="submit">✏️ {{ t('rename') }}</button>
+              </form>
+              <form method="post" onsubmit="return confirm('Delete this subject?');">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="subject_id" value="{{ s['id'] }}">
+                <button class="btn btn-sm btn-outline-danger" type="submit">🗑️ {{ t('delete') }}</button>
+              </form>
+            </td>
+          </tr>
+        {% else %}
+          <tr><td colspan="3" class="text-center text-muted py-4">{{ t('no_data') }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="col-md-5">
+    <div class="card-pro">
+      <h6>➕ {{ t('add') }} {{ t('subjects') }}</h6>
+      <form method="post" class="d-flex gap-2">
+        <input type="hidden" name="action" value="add">
+        <input class="form-control" name="name" placeholder="e.g. Biology" required>
+        <button class="btn btn-primary" type="submit">{{ t('add') }}</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

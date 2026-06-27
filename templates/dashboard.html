@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block title %}{{ t('dashboard') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">🏠 {{ t('welcome') }}, {{ current_user['full_name'] or current_user['username'] }}</h4>
+
+{% if current_user['role'] in ['admin','teacher'] %}
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+      <div class="stat-card"><div class="stat-icon">👥</div>
+        <div class="stat-value">{{ stats.total_students }}</div>
+        <div class="stat-label">{{ t('total_students') }}</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card"><div class="stat-icon">📈</div>
+        <div class="stat-value">{{ stats.class_average }}</div>
+        <div class="stat-label">{{ t('class_average') }}</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card"><div class="stat-icon">✅</div>
+        <div class="stat-value">{{ stats.pass_rate }}%</div>
+        <div class="stat-label">{{ t('pass_rate') }}</div></div>
+    </div>
+    <div class="col-6 col-md-3">
+      <div class="stat-card"><div class="stat-icon">🏆</div>
+        <div class="stat-value" style="font-size:1.1rem;">{{ stats.top_scorer or '—' }}</div>
+        <div class="stat-label">{{ t('top_scorer') }}</div></div>
+    </div>
+  </div>
+
+  <div class="scroll-panel">
+    <div class="scroll-arrows">
+      <button class="scroll-arrow-btn" onclick="scrollPanel('dashTable','up')" title="{{ t('scroll_up') }}">▲</button>
+      <button class="scroll-arrow-btn" onclick="scrollPanel('dashTable','down')" title="{{ t('scroll_down') }}">▼</button>
+    </div>
+    <div class="scroll-body" id="dashTable">
+      <table class="pro-table">
+        <thead><tr>
+          <th>{{ t('roll_no') }}</th><th>{{ t('name') }}</th><th>{{ t('class_name') }}</th>
+          <th>{{ t('avg') }}</th><th>{{ t('grade') }}</th>
+        </tr></thead>
+        <tbody>
+        {% for s in students %}
+          <tr>
+            <td>{{ s['roll_no'] }}</td><td>{{ s['name'] }}</td><td>{{ s['class_name'] or '-' }}</td>
+            <td>{{ avg_for_student(s['id']) }}</td>
+            <td><span class="badge badge-grade-{{ grade_for(avg_for_student(s['id'])).replace('+','p') }}">{{ grade_for(avg_for_student(s['id'])) }}</span></td>
+          </tr>
+        {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">{{ t('no_data') }}</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="mt-3 d-flex gap-2 flex-wrap">
+    <a class="btn btn-primary btn-sm" href="{{ url_for('student_add') }}">➕ {{ t('add_new_student') }}</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('students_list') }}">👥 {{ t('students') }}</a>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('exams_page') }}">📝 {{ t('exams_results') }}</a>
+  </div>
+{% endif %}
+
+{% if current_user['role'] == 'parent' %}
+  <p class="text-muted">{{ t('my_children') }}: {{ my_children|length }}</p>
+  <a class="btn btn-primary btn-sm" href="{{ url_for('parent_portal') }}">👨‍👩‍👧 {{ t('parent_portal') }}</a>
+{% endif %}
+
+{% if current_user['role'] == 'teacher' %}
+  <div class="card-pro mb-3">
+    <h6>{{ t('assigned_subjects') }}</h6>
+    {% if my_subjects %}
+      <ul class="mb-0">{% for s in my_subjects %}<li>{{ s['name'] }}</li>{% endfor %}</ul>
+    {% else %}
+      <p class="text-muted mb-0">No subjects assigned yet — ask the admin to assign you subjects in Teacher Management.</p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{% if current_user['role'] == 'student' %}
+  {% if my_profile %}
+    <div class="card-pro">
+      <h6>{{ my_profile['name'] }} — {{ my_profile['roll_no'] }}</h6>
+      <p class="mb-1">{{ t('class_name') }}: {{ my_profile['class_name'] or '-' }}</p>
+      <p class="mb-1">{{ t('attendance') }}: {{ my_profile['attendance'] }}%</p>
+      <p class="mb-1">{{ t('avg') }}: {{ avg_for_student(my_profile['id']) }} ({{ grade_for(avg_for_student(my_profile['id'])) }})</p>
+      <a class="btn btn-sm btn-outline-primary" href="{{ url_for('export_pdf_one', sid=my_profile['id']) }}">🧾 {{ t('export_pdf') }}</a>
+    </div>
+  {% else %}
+    <p class="text-muted">Your account isn't linked to a student profile yet. Ask the admin to link it.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

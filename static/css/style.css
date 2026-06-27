@@ -1,0 +1,175 @@
+/* ===========================================================
+   Student Management PRO — Responsive Stylesheet
+   Works on mobile + desktop. Supports density (small/medium)
+   and RTL (Urdu) layout.
+=========================================================== */
+:root{
+  --sidebar-w: 230px;
+  --navy: #1A1F36;
+  --navy2: #252D4A;
+  --accent: #4F6EF5;
+  --bg: #F0F2F5;
+  --card: #FFFFFF;
+  --border: #E5E7EB;
+  --text: #1A1F36;
+  --text2: #6B7280;
+}
+
+* { box-sizing: border-box; }
+body{
+  margin:0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", "Noto Nastaliq Urdu", system-ui, sans-serif;
+}
+body.rtl-mode{ direction: rtl; }
+
+.app-shell{ min-height: 100vh; }
+
+/* ---------- Sidebar (desktop) ---------- */
+.sidebar{
+  width: var(--sidebar-w);
+  min-width: var(--sidebar-w);
+  background: var(--navy);
+  color: #fff;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+.sidebar-brand{
+  padding: 18px 16px;
+  font-weight: 700;
+  font-size: 1.05rem;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display:flex; align-items:center; gap:8px;
+}
+.brand-icon{ font-size:1.4rem; }
+
+/* The key "scrolling option" requirement: nav list scrolls
+   independently when there are many menu items, on both
+   the desktop sidebar and the mobile offcanvas drawer. */
+.sidebar-nav{
+  flex: 1 1 auto;
+  overflow-y: auto;
+  max-height: calc(100vh - 64px);
+  padding: 10px 0 24px;
+  scrollbar-width: thin;
+  scrollbar-color: #475569 var(--navy);
+}
+.sidebar-nav::-webkit-scrollbar{ width: 6px; }
+.sidebar-nav::-webkit-scrollbar-thumb{ background: #475569; border-radius: 3px; }
+
+.nav-section{
+  font-size: .65rem;
+  letter-spacing: .08em;
+  color: #64748B;
+  padding: 14px 18px 4px;
+  text-transform: uppercase;
+}
+.nav-link{
+  display:block;
+  color: #CBD5E1;
+  padding: 10px 18px;
+  text-decoration:none;
+  font-size:.92rem;
+  border-left: 3px solid transparent;
+}
+body.rtl-mode .nav-link{ border-left:none; border-right: 3px solid transparent; }
+.nav-link:hover{ background: var(--navy2); color:#fff; }
+.nav-link.active{ background: var(--accent); color:#fff; border-left-color:#fff; }
+body.rtl-mode .nav-link.active{ border-right-color:#fff; }
+
+/* ---------- Topbar ---------- */
+.topbar{
+  background: var(--navy);
+  color:#fff;
+  padding: 10px 18px;
+  position: sticky;
+  top:0;
+  z-index: 20;
+}
+.topbar-title{ font-weight:600; font-size: .95rem; opacity:.85; }
+
+.main-col{ min-height: 100vh; display:flex; flex-direction:column; }
+.content-area{ padding: 18px; flex:1 1 auto; }
+
+/* ---------- Cards / stats ---------- */
+.stat-card, .card-pro{
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px;
+}
+.stat-card .stat-icon{ font-size: 1.6rem; }
+.stat-card .stat-value{ font-size: 1.5rem; font-weight:700; }
+.stat-card .stat-label{ color: var(--text2); font-size:.8rem; }
+
+/* ---------- Scrollable panels (students / exams / etc.) ----------
+   These give the explicit up/down scrolling behaviour requested,
+   with optional arrow buttons that call scrollPanel() in app.js   */
+.scroll-panel{
+  position: relative;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--card);
+}
+.scroll-panel .scroll-body{
+  max-height: 480px;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+.scroll-arrows{
+  position:absolute;
+  right: 8px; top: -14px;
+  display:flex; gap:4px; z-index:5;
+}
+body.rtl-mode .scroll-arrows{ right:auto; left:8px; }
+.scroll-arrow-btn{
+  background: var(--accent); color:#fff; border:none;
+  width:28px; height:28px; border-radius:50%;
+  font-size:.8rem; line-height:1; cursor:pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+.scroll-arrow-btn:hover{ background:#3b59d6; }
+
+table.pro-table{ width:100%; border-collapse: collapse; }
+table.pro-table thead th{
+  background: #F3F4F6; position: sticky; top:0; z-index:2;
+  font-size:.78rem; text-transform:uppercase; color:var(--text2);
+  padding:10px 8px; white-space:nowrap;
+}
+table.pro-table td{ padding:9px 8px; border-bottom:1px solid var(--border); font-size:.9rem; white-space:nowrap; }
+table.pro-table tbody tr:hover{ background:#F9FAFB; }
+
+/* ---------- Density modes ---------- */
+body.density-small table.pro-table td,
+body.density-small table.pro-table th{ padding:5px 6px; font-size:.78rem; }
+body.density-small .content-area{ font-size:.85rem; }
+body.density-small .stat-card .stat-value{ font-size:1.2rem; }
+
+body.density-medium table.pro-table td,
+body.density-medium table.pro-table th{ padding:9px 8px; font-size:.9rem; }
+
+.badge-grade-A, .badge-grade-Ap{ background:#10B981; }
+.badge-grade-B{ background:#3B82F6; }
+.badge-grade-C{ background:#F59E0B; }
+.badge-grade-D{ background:#8B5CF6; }
+.badge-grade-F{ background:#EF4444; }
+
+/* ---------- Login screen ---------- */
+.login-wrap{
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background: linear-gradient(160deg, var(--navy), var(--navy2));
+  padding: 20px;
+}
+.login-card{
+  background:#fff; border-radius:14px; padding: 32px;
+  width:100%; max-width:420px; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+}
+
+/* ---------- Mobile tweaks ---------- */
+@media (max-width: 991.98px){
+  .content-area{ padding: 12px; }
+  .scroll-panel .scroll-body{ max-height: 60vh; }
+  table.pro-table td, table.pro-table th{ font-size:.78rem; padding:6px; }
+}

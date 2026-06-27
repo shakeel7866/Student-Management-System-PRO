@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}{{ t('parent_portal') }}{% endblock %}
+{% block content %}
+<h4 class="mb-3">👨‍👩‍👧 {{ t('parent_portal') }}</h4>
+
+{% if not child_cards %}
+  <p class="text-muted">No children are linked to your account yet. Ask the school admin to link your account to your child's student record.</p>
+{% endif %}
+
+{% for c in child_cards %}
+  <div class="card-pro mb-4">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-2">
+      <div>
+        <h5 class="mb-0">{{ c.student['name'] }} <span class="text-muted small">({{ c.student['roll_no'] }})</span></h5>
+        <small class="text-muted">{{ t('class_name') }}: {{ c.student['class_name'] or '-' }}</small>
+      </div>
+      <div class="text-end">
+        <span class="badge badge-grade-{{ c.grade.replace('+','p') }} fs-6">{{ c.grade }}</span>
+        <div class="small text-muted">{{ t('avg') }}: {{ c.avg }} | {{ t('attendance') }}: {{ "%.0f"|format(c.student['attendance']) }}%</div>
+      </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+      {% for m in c.marks %}
+        <div class="col-6 col-md-3">
+          <div class="border rounded p-2 text-center">
+            <div class="small text-muted">{{ m['name'] }}</div>
+            <div class="fw-bold">{{ "%.0f"|format(m['marks']) }}</div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <a class="btn btn-sm btn-outline-secondary mb-3" href="{{ url_for('export_pdf_one', sid=c.student['id']) }}">🧾 {{ t('export_pdf') }}</a>
+
+    <hr>
+    <h6>💬 {{ t('message_teacher') }}</h6>
+    <form method="post" class="d-flex gap-2 mb-3 flex-wrap">
+      <input type="hidden" name="student_id" value="{{ c.student['id'] }}">
+      <input class="form-control" name="body" placeholder="Type a message about {{ c.student['name'] }}..." required style="max-width:420px;">
+      <button class="btn btn-primary btn-sm" type="submit">📤 {{ t('send') }}</button>
+    </form>
+
+    {% if c.messages %}
+      <div class="scroll-panel">
+        <div class="scroll-body" style="max-height:200px;" id="msgs{{ c.student['id'] }}">
+          <ul class="list-group list-group-flush">
+            {% for m in c.messages %}
+              <li class="list-group-item small">
+                <strong>{{ m['sender_name'] or 'You' }}</strong> — {{ m['created_at'][:16] }}<br>{{ m['body'] }}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endfor %}
+{% endblock %}
