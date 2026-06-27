@@ -13,7 +13,7 @@ a phone on the same network, since the server binds to 0.0.0.0).
 ## First login
 A default admin account is created automatically the first time you run the app:
 
-    Username: admin
+    Username: admin  (given password(i will give you password )
     Password: admin123
 
 **Change this password (or create a new admin and remove this one) before
