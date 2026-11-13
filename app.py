@@ -38,7 +38,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from translations import get_translator
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "school.db")
+DB_PATH = os.path.join(os.environ.get("DB_DIR", "/tmp"), "school.db")
 DEFAULT_SUBJECTS = ["Math", "English", "Science", "Urdu", "Computer Science", "Physics", "Chemistry"]
 
 app = Flask(__name__)
