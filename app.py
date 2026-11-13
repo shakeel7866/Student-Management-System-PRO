@@ -42,7 +42,7 @@ DB_PATH = os.path.join(os.environ.get("DB_DIR", "/tmp"), "school.db")
 DEFAULT_SUBJECTS = ["Math", "English", "Science", "Urdu", "Computer Science", "Physics", "Chemistry"]
 
 app = Flask(__name__)
-app.secret_key = "change-this-secret-key-in-production"
+app.secret_key = os.environ.get("SECRET_KEY", "student-management-pro-secret-key")
 
 ROLES = ["admin", "teacher", "student", "parent"]
 
